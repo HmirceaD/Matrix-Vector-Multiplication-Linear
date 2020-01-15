@@ -38,6 +38,16 @@ def systolic_delay(mat_list):
             mat_line.insert(0,0)
         delay_num += 1
 
+def get_mat_steps():
+
+    systolic_delay(MATRIX)
+
+    ls = [Step(MATRIX[i]) for i in range(len(MATRIX))]
+
+    return ls
+
+list_steps = get_mat_steps()
+
 def list_to_string(list1):
 
     string_list = ""
@@ -73,32 +83,32 @@ def draw_updated_tags(steps):
     for step in steps:
         #value inside the rectangle
         if step.inner_value is not None:
-            canvas.create_text((rectangle_coords[counter][0] + 40, rectangle_coords[counter][1] + 90), tag="DELETEME", text=str(step.inner_value))
+            canvas.create_text((rectangle_coords[counter][0] + 50, rectangle_coords[counter][1] + 130), tag="DELETEME", text=str(step.inner_value), font="Times 20 bold")
         else:
-            canvas.create_text((rectangle_coords[counter][0] + 40, rectangle_coords[counter][1] + 90), tag="DELETEME", text="")
+            canvas.create_text((rectangle_coords[counter][0] + 50, rectangle_coords[counter][1] + 130), tag="DELETEME", text="", font="Times 20 bold")
         #the vectore input on the left
         if step.input_left != 0:
             canvas.create_text((rectangle_coords[counter][0] - 15 , rectangle_coords[counter][1] + 50), tag="DELETEME",
-                               text=str(step.input_left))
+                               text=str(step.input_left), font="Times 14")
         else:
             canvas.create_text((rectangle_coords[counter][0] - 15, rectangle_coords[counter][1] + 50), tag="DELETEME",
-                               text="")
+                               text="", font="Times 14")
         #the vector input on the right
         if step.input_right != 0:
-            canvas.create_text((rectangle_coords[counter][0] + 15 , rectangle_coords[counter][1] + 50), tag="DELETEME",
-                               text=str(step.input_right))
+            canvas.create_text((rectangle_coords[counter][0] + 115 , rectangle_coords[counter][1] + 50), tag="DELETEME",
+                               text=str(step.input_right), font="Times 14")
         else:
-            canvas.create_text((rectangle_coords[counter][0] + 15, rectangle_coords[counter][1] + 50), tag="DELETEME",
-                               text="")
+            canvas.create_text((rectangle_coords[counter][0] + 115, rectangle_coords[counter][1] + 50), tag="DELETEME",
+                               text="", font="Times 14")
 
-        lower_line_pixels = 10
+        lower_line_pixels = 20
         for i in step.lines:
             if i != 0:
-                canvas.create_text((rectangle_coords[counter][0] + 40, rectangle_coords[counter][1] + 200 + lower_line_pixels), tag="DELETEME", text=str(i))
+                canvas.create_text((rectangle_coords[counter][0] + 40, rectangle_coords[counter][1] + 200 + lower_line_pixels), tag="DELETEME", text=str(i), font="Times 14")
             else:
-                canvas.create_text((rectangle_coords[counter][0] + 40, rectangle_coords[counter][1] + 200 +  lower_line_pixels), tag="DELETEME", text="delay")
+                canvas.create_text((rectangle_coords[counter][0] + 40, rectangle_coords[counter][1] + 200 +  lower_line_pixels), tag="DELETEME", text="Delay", font="Times 14")
 
-            lower_line_pixels = lower_line_pixels + 10
+            lower_line_pixels += 20
 
         counter += 1
 
@@ -106,14 +116,44 @@ def draw_updated_tags(steps):
 def draw_vector():
     canvas.create_text(top_frame, 650, 80, text=list_to_string(VECTOR), font="Times 20", tag="DELETEME")
 
+def calculate_step():
+
+    i = len(list_steps) - 1
+
+    while i > 0:
+
+        list_steps[i].input_left = list_steps[i - 1].input_right
+        list_steps[i].input_right = list_steps[i].input_left
+
+        if list_steps[i].lines:
+
+            aux = list_steps[i].lines.pop(0)
+            list_steps[i].inner_value = list_steps[i].inner_value + list_steps[i].input_left * aux
+
+        i = i - 1
+
+    if list_steps[0].lines:
+        list_steps[0].lines.pop(0)
+
+    if VECTOR:
+        aux = VECTOR.pop(0)
+        list_steps[0].input_left = aux
+        list_steps[0].input_right = aux
+
+        if list_steps[0].input_left is not None:
+            list_steps[0].inner_value = list_steps[0].inner_value + list_steps[0].input_left * aux
+    else:
+        list_steps[0].input_left = 0
+        list_steps[0].input_right = 0
+
+    canvas.delete("DELETEME")
+
+    draw_updated_tags(list_steps)
+
 def on_click():
-    pass
+    calculate_step()
 
 def draw_board(app):
-
-    systolic_delay(MATRIX)
-    list_steps = [Step(MATRIX[i]) for i in range(len(MATRIX))]
-
 
     label = tk.Label(app, text="Matrix-Vector")
     label.pack()
