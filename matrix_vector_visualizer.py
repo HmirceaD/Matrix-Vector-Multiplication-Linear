@@ -17,7 +17,7 @@ bot_frame = bot_frame.pack(side=tk.BOTTOM)
 canvas = tk.Canvas(top_frame, bg="white", height=500, width=1300)
 
 class Step:
-
+    # Each step for a rectangle
     def __init__(self, lines):
         self.input_left = 0
         self.input_right = 0
@@ -30,7 +30,7 @@ class Step:
                " Inner Value: " + str(self.inner_value)
 
 def systolic_delay(mat_list):
-
+    # ADD ZEROS TO MATRIX SO IT CAN ADD "DELAY"
     delay_num = 0
 
     for mat_line in mat_list:
@@ -39,7 +39,7 @@ def systolic_delay(mat_list):
         delay_num += 1
 
 def get_mat_steps():
-
+    # Create the steps list
     systolic_delay(MATRIX)
 
     ls = [Step(MATRIX[i]) for i in range(len(MATRIX))]
@@ -49,7 +49,7 @@ def get_mat_steps():
 list_steps = get_mat_steps()
 
 def list_to_string(list1):
-
+    # CONVERT PYTHON LIST TO A STRING
     string_list = ""
 
     for elem in list1:
@@ -58,15 +58,16 @@ def list_to_string(list1):
 
     return string_list
 
-def draw_rectangle(canvas, top_frame, P, poly, x, y, hurdle = False):
-
+def draw_rectangle(canvas, top_frame, P, x, y, hurdle = False):
+    # draw the rectangles
     canvas.create_rectangle(x, y, x+100, y+200, fill="white", outline='black')
 
-    #ingoing lines
+    #ingoing line
     canvas.create_line(top_frame, x-50, y+100, x, y+100)
-    #outgoint lines
+    #outgoint line
     canvas.create_line(top_frame, x+100, y+100, x+150, y+100)
 
+    # P
     canvas.create_text(top_frame, x + 50, y + 30, text=P, font="Times 20")
 
 
@@ -77,7 +78,7 @@ def draw_rectangle(canvas, top_frame, P, poly, x, y, hurdle = False):
         canvas.create_rectangle(x + 150, y + 110, x + 160, y+90, fill="black", outline='black')
 
 def draw_updated_tags(steps):
-
+    # draw the dynamic information (value of each step, current input etc.)
     counter = 0
 
     for step in steps:
@@ -101,6 +102,7 @@ def draw_updated_tags(steps):
             canvas.create_text((rectangle_coords[counter][0] + 115, rectangle_coords[counter][1] + 50), tag="DELETEME",
                                text="", font="Times 14")
 
+        # the matrix lines displayed on the bottom of the rectangles
         lower_line_pixels = 20
         for i in step.lines:
             if i != 0:
@@ -114,10 +116,11 @@ def draw_updated_tags(steps):
 
 
 def draw_vector():
+    #draw the current values of the vector
     canvas.create_text(top_frame, 650, 80, text=list_to_string(VECTOR), font="Times 20", tag="DELETEME")
 
 def calculate_step():
-
+    # CALCULATE THE VALUE OF P0 P1 P2... EVEY STEP
     i = len(list_steps) - 1
 
     while i > 0:
@@ -151,22 +154,28 @@ def calculate_step():
     draw_updated_tags(list_steps)
 
 def on_click():
+    #CALLED WHEN THE NEXT STEP BUTTON IS PRESSED
     calculate_step()
 
 def draw_board(app):
-
+    # DRAW THE STATIC ELEMENTS OF THE BOARD AND THE INITIAL VALUES FOR THE DYNAMIC ELEMENTS
     label = tk.Label(app, text="Matrix-Vector")
     label.pack()
 
     canvas.create_text(top_frame, 650, 50, text="Vector", font="Times 20")
 
-    draw_rectangle(canvas, top_frame, "P0", 1, 250, 150)
+    init_coord = [250, 150]
+    cont = 0
+    for i in MATRIX:
 
-    draw_rectangle(canvas, top_frame, "P1", 2, 460, 150, hurdle=True)
+        if i == MATRIX[0] or i == MATRIX[-1]: # if it is the last or first elemnt do not add the black squares
+            isHurdle = False
+        else:
+            isHurdle = True
 
-    draw_rectangle(canvas, top_frame, "P2", 1, 670, 150, hurdle=True)
-
-    draw_rectangle(canvas, top_frame, "P3", 1, 880, 150)
+        draw_rectangle(canvas, top_frame, "P"+str(cont), init_coord[0], init_coord[1], isHurdle)
+        cont += 1
+        init_coord[0] += 210
 
     draw_vector()
 
